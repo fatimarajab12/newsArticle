@@ -1,60 +1,68 @@
 import axios from 'axios';
 import { isValidUrl } from './checkURL';
+
 const input = document.getElementById('URI');
+const errorElement = document.getElementById('error');
+const agreementElement = document.getElementById('agreement');
+const subjectivityElement = document.getElementById('subjectivity');
+const confidenceElement = document.getElementById('confidence');
+const ironyElement = document.getElementById('irony');
+const scoreTagElement = document.getElementById('score_tag');
+const loader = document.getElementById('loader');
 
 async function handleSubmit(e) {
     e.preventDefault();
     const form = document.querySelector('form');
 
     if (!isValidUrl(input.value)) {
-        showError();
-        document.getElementById('error').innerHTML = 'Please, Enter a valid URL';
+        displayError('Please, Enter a valid URL');
         input.value = '';
         return;
     }
 
-    loading(true);
+    toggleLoading(true);
     try {
         const { data } = await axios.post('http://localhost:8000/', { URI: input.value }, {
             headers: { 'Content-Type': 'application/json' }
         });
         displayResults(data);
     } catch (error) {
-        showError();
-        document.getElementById('error').innerHTML = 'An error occurred. Please try again.';
+        displayError('An error occurred. Please try again.');
     }
 }
 
-const displayResults = data => {
-    loading(false);
-    if (data.msg) {
-        showError();
+const displayResults = (data) => {
+    toggleLoading(false);
+    if (!data || data.msg) {
+        displayError(data?.msg || 'Unexpected response from the server.');
         showResults(false);
-        document.getElementById('error').innerHTML = `${data.msg}`;
         return;
     }
     hideError();
     showResults(true);
 
-    document.getElementById('agreement').innerHTML = `Agreement: ${data.sample.agreement}`;
-    document.getElementById('subjectivity').innerHTML = `Subjectivity: ${data.sample.subjectivity}`;
-    document.getElementById('confidence').innerHTML = `Confidence: ${data.sample.confidence}`;
-    document.getElementById('irony').innerHTML = `Irony: ${data.sample.irony}`;
-    document.getElementById('score_tag').innerHTML = `Score Tag: ${data.sample.score_tag}`;
+    agreementElement.innerHTML = `Agreement: ${data.sample.agreement}`;
+    subjectivityElement.innerHTML = `Subjectivity: ${data.sample.subjectivity}`;
+    confidenceElement.innerHTML = `Confidence: ${data.sample.confidence}`;
+    ironyElement.innerHTML = `Irony: ${data.sample.irony}`;
+    scoreTagElement.innerHTML = `Score Tag: ${data.sample.score_tag}`;
 }
 
-const loading = (bool) => {
-    const loader = document.getElementById('loader');
-    loader.style.display = bool ? 'block' : 'none';
+const toggleLoading = (isLoading) => {
+    loader.style.display = isLoading ? 'block' : 'none';
 }
 
-const showResults = (bool) => {
+const showResults = (shouldShow) => {
     document.querySelectorAll('ul li').forEach(element => {
-        element.style.display = bool ? 'block' : 'none';
+        element.style.display = shouldShow ? 'block' : 'none';
     });
 }
 
-const showError = () => document.getElementById('error').style.display = 'block';
-const hideError = () => document.getElementById('error').style.display = 'none';
+const displayError = (message) => {
+    errorElement.innerHTML = message;
+    errorElement.style.display = 'block';
+}
+
+const hideError = () => errorElement.style.display = 'none';
 
 export { handleSubmit };
