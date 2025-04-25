@@ -7,9 +7,7 @@ A web application that allows users to analyze articles using Natural Language P
 1. Clone the repository.
 2. Run `npm install` to install dependencies.
 3. Set up your `.env` file with your API key:
-    ```
-    API_KEY=your_mean_cloud_api_key
-    ```
+        
 4. Run `npm run build` to build the project for production.
 5. Start the server with `npm start`.
 
